@@ -1,6 +1,16 @@
+import random
+import sys
+sys.path.append('../graph/')
+from util import Queue
+
+
 class User:
     def __init__(self, name):
         self.name = name
+
+
+names = ['Bill', 'Tom', 'Brian', 'Hank', 'Joe', 'Sally', 'Susan', 'Ethel', 'Bertha', 'Barbara']
+
 
 class SocialGraph:
     def __init__(self):
@@ -38,6 +48,7 @@ class SocialGraph:
 
         The number of users must be greater than the average number of friendships.
         """
+        if num_users < avg_friendships: return False  # users must be higher
         # Reset graph
         self.last_id = 0
         self.users = {}
@@ -45,8 +56,33 @@ class SocialGraph:
         # !!!! IMPLEMENT ME
 
         # Add users
-
+        for x in range(1, num_users + 1):
+            self.add_user(random.choice(names))
         # Create friendships
+        for x in range(1, num_users + 1):
+            user = self.users[x]
+            user_friends = self.friendships[x]
+            possible_ids = set([random.randrange(1, num_users + 1) for x in range(avg_friendships)])
+            # the above has the possibility of selecting a user to be it's own friend, which add_friend should handle
+            for y in possible_ids:
+                # x is the user id, y is the random friend id
+                self.add_friendship(x, y)
+
+    def bfs(self, user_id, friend_id):
+        queue = Queue()
+        queue.enqueue([user_id])
+        visited = set()
+        while queue.size() > 0:
+            path = queue.dequeue()
+            vertex = path[-1]
+            if vertex not in visited:
+                if vertex == friend_id:
+                    return path
+                visited.add(vertex)
+                for next_vert in self.friendships[vertex]:
+                    new_path = list(path)
+                    new_path.append(next_vert)
+                    queue.enqueue(new_path)
 
     def get_all_social_paths(self, user_id):
         """
@@ -59,6 +95,17 @@ class SocialGraph:
         """
         visited = {}  # Note that this is a dictionary, not a set
         # !!!! IMPLEMENT ME
+        all_friends = set()
+        queue = Queue()
+        queue.enqueue(user_id)
+        while queue.size() > 0:
+            vertex = queue.dequeue()
+            if vertex not in all_friends:
+                all_friends.add(vertex)
+                for next_vert in self.friendships[vertex]:
+                    queue.enqueue(next_vert)
+        for friend in all_friends:
+            visited[friend] = self.bfs(user_id, friend)
         return visited
 
 
