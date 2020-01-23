@@ -115,3 +115,13 @@ if __name__ == '__main__':
     print(sg.friendships)
     connections = sg.get_all_social_paths(1)
     print(connections)
+
+    # calculate the degrees of separation for 1000 users with average 5 friends
+    st = SocialGraph()
+    st.populate_graph(1000, 5)
+    st_con = st.get_all_social_paths(1)
+    total = 0
+    for user_id in st_con:
+        total += len(st_con[user_id]) - 1
+    print(f'Friends in network: {len(st_con)}')
+    print(f'Degrees of separation: {total / len(st_con)}')
